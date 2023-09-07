@@ -148,7 +148,10 @@ println!("新插入的记录的主键为: {}", conn.last_insert_id())
 ```
 ## 读操作
 流式查询：query_iter
+```rust
 {{#include ./examples/query_all.rs}}
+```
+
 2. 输出到Vec：query
 3. 映射到结构体： query_map
 4. 获取单条数据： query_first
