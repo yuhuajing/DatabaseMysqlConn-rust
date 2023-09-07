@@ -98,17 +98,25 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     //                     "account_name" => "yalc",
     //         },
     //     )?;
-    // 删除数据
-    let deletestmt =
-        conn.prep(r"delete from payment where customer_id=:customer_id and account_name=:account_name")?;
+    // // 删除数据
+    // let deletestmt =
+    //     conn.prep(r"delete from payment where customer_id=:customer_id and account_name=:account_name")?;
 
-    conn.exec_drop(
-        &deletestmt,
-        params! {
-            "customer_id" => 2,
-                    "account_name" => "yalc",
-        },
-    )?;
+    // conn.exec_drop(
+    //     &deletestmt,
+    //     params! {
+    //         "customer_id" => 2,
+    //                 "account_name" => "yalc",
+    //     },
+    // )?;
+
+
+    conn.query_iter("SELECT customer_id, amount, account_name from payment")
+        .unwrap()
+        .for_each(|row| {
+            let r: (i32, i32, String ) = from_row(row.unwrap());
+            println!("{}, {},{}", r.0, r.1, r.2);
+        });
 
     // //查询整行数据，返回的数据和表结构一致
     // let val: Vec<Payment> = conn.query_map(

@@ -117,7 +117,7 @@ struct Payment {
 ```rust
 println!("新插入的记录的主键为: {}", conn.last_insert_id())
 ```
-- 更新 conn.prep()
+更新 conn.prep()
 ```rust
     let updatestmt = conn.prep(
         r"update payment set amount=:amount where customer_id=:customer_id and account_name=:account_name",
@@ -132,7 +132,7 @@ println!("新插入的记录的主键为: {}", conn.last_insert_id())
             },
         )?;
 ```
-- 删除 conn.exec_drop()
+删除 conn.exec_drop()
 ```rust
     // 删除数据
     let deletestmt =
@@ -146,10 +146,9 @@ println!("新插入的记录的主键为: {}", conn.last_insert_id())
         },
     )?;
 ```
-
 ## 读操作
-
-1. 流式查询：query_iter
+流式查询：query_iter
+{{#include ./examples/query_all.rs}}
 2. 输出到Vec：query
 3. 映射到结构体： query_map
 4. 获取单条数据： query_first
