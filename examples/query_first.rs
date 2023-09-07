@@ -19,10 +19,19 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
         account_name text)",
     )?;
 
-    // 查询第一行数据中的单个数据字段
-    let val: Option<String> = conn.query_first("SELECT account_name from payment")?;
+    // 查询单条特定规则的数据
+    let val: Option<String> = conn.exec_first(
+        r"SELECT account_name from payment where customer_id=:customer_id",
+        params! {
+            "customer_id" => 2,
+        },
+    )?;
     let account_name: String = val.clone().unwrap_or_default();
     println!("account_name = {account_name}");
+    // let val: Option<i32> =
+    //     conn.query_first("SELECT customer_id from payment where account_name='foo'")?;
+    // let customer_id: i32 = val.clone().unwrap_or_default();
+    // println!("customer_id = {customer_id}");
 
     Ok(())
 }

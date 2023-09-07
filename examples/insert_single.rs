@@ -18,7 +18,6 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
         amount int not null,
         account_name text)",
     )?;
-
         // 单条插入
         conn.exec_drop(
             r"INSERT INTO payment (customer_id, amount, account_name)

@@ -96,7 +96,9 @@ struct Payment {
             }),
         )?;
 ```
-预编译语句插入大量数据， conn.prep() + conn.exec_drop()
+预编译语句插入大量数据， conn.prep() + conn.exec_drop() 
+
+不会判重，重复执行的话会插入多条同样的数据
 ```rust
     let insertstmt = conn.prep(
         r"INSERT INTO payment (customer_id, amount, account_name)
@@ -118,41 +120,27 @@ struct Payment {
 println!("新插入的记录的主键为: {}", conn.last_insert_id())
 ```
 更新 conn.prep()
-```rust
-    let updatestmt = conn.prep(
-        r"update payment set amount=:amount where customer_id=:customer_id and account_name=:account_name",
-    )?;
+[Update](./examples/query_first.rs)
 
-        conn.exec_drop(
-            &updatestmt,
-            params! {
-                "customer_id" => 2,
-                        "amount" => 881,
-                        "account_name" => "yalc",
-            },
-        )?;
-```
 删除 conn.exec_drop()
 ```rust
-    // 删除数据
-    let deletestmt =
-        conn.prep(r"delete from payment where customer_id=:customer_id and account_name=:account_name")?;
-
-    conn.exec_drop(
-        &deletestmt,
-        params! {
-            "customer_id" => 2,
-                    "account_name" => "yalc",
-        },
-    )?;
+{{#include examples/delete.rs}}
 ```
 ## 读操作
-流式查询：query_iter
+查询：query_iter + query_map
 ```rust
-{{#include examples/query_all.rs}}
+{{#include examples/query.rs}}
 ```
+获取单条数据： query_first
+查询特定数据行，可能会出现下面几种情况:
 
-2. 输出到Vec：query
-3. 映射到结构体： query_map
-4. 获取单条数据： query_first
-5. 条件查询： exec_first
+- 找到，返回实际数据
+- 没有找到行
+- 发生错误
+所以，使用query_first函数返回的是Option的结果。 需要将其解包两次才可以获取实际的行数据:
+
+条件查询： exec_first
+
+```rust
+{{#include examples/query_first.rs}}
+```

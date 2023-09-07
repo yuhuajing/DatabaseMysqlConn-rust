@@ -20,6 +20,7 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     )?;
 
 // 不能有空数据，否则会解析失败
+//    conn.query_iter("SELECT customer_id, amount, account_name from payment where account_name='bar'")
     conn.query_iter("SELECT customer_id, amount, account_name from payment")
         .unwrap()
         .for_each(|row| {
@@ -29,6 +30,7 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
 
     //查询整行数据，返回的数据和表结构一致
     let val: Vec<Payment> = conn.query_map(
+        //"SELECT customer_id, amount, account_name from payment where account_name='clay'",
         "SELECT customer_id, amount, account_name from payment",
         |(customer_id, amount, account_name)| Payment {
             customer_id,
