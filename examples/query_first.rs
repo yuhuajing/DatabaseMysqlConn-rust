@@ -28,10 +28,14 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     )?;
     let account_name: String = val.clone().unwrap_or_default();
     println!("account_name = {account_name}");
-    // let val: Option<i32> =
-    //     conn.query_first("SELECT customer_id from payment where account_name='foo'")?;
-    // let customer_id: i32 = val.clone().unwrap_or_default();
-    // println!("customer_id = {customer_id}");
+
+    // let val: Option<String> =
+    //     conn.query_first("SELECT account_name from payment where customer_id=9")?;
+    // let account_name:String = val.clone().unwrap_or_default();
+    
+    // if "bar" == account_name{
+    //     println!("account_name = {account_name}");
+    // }
 
     Ok(())
 }
