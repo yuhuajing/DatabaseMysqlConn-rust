@@ -156,6 +156,10 @@ async fn query_try_insert_db(customer_id: i32, amount:i32,account_name: String) 
         customer_id,
         account_name
     );
+    // let query_seq = format!(
+    //     "SELECT customer_id, amount, account_name from payment where account_name='{}' order by customer_id desc limit 1",
+    //     account_name
+    // );
     // println!("{query_seq}");
     match get_db_conn().await {
         Ok(mut conn) => {
