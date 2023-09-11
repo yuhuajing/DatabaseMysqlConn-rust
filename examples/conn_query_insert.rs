@@ -23,8 +23,20 @@ async fn get_ws_client() -> Provider<Ws> {
 #[tokio::main]
 async fn main() -> Result<()> {
     let customer_id: i32 = 19;
-    let account_name: String = "bar".to_string();
-    let _t: std::result::Result<(), Box<dyn std::error::Error>> = query_try_insert_db(customer_id,0,account_name).await;
+    let account_name: String = "clay".to_string();
+    let _t: std::result::Result<(), Box<dyn std::error::Error>> =
+        query_try_insert_db(customer_id, 0, account_name).await;
+        
+    let account_name: String = "clay".to_string();
+    match query_db_latest_blocknum(customer_id, 0, account_name).await {
+        Ok(customer_id) => {
+            println!("customer_id={}", customer_id);
+        }
+        Err(_) => todo!(),
+    }
+    // let t: std::result::Result<u8, Box<dyn std::error::Error>> =
+    // .await;
+
     // let client = Arc::new(get_ws_client().await);
     // let tasks = vec![
     //     task::spawn(get_history_logs(client.clone())),
@@ -148,18 +160,71 @@ async fn get_db_conn() -> std::result::Result<PooledConn, Box<dyn std::error::Er
     Ok(conn)
 }
 
-async fn query_try_insert_db(customer_id: i32, amount:i32,account_name: String) -> std::result::Result<(), Box<dyn std::error::Error>> {
-    //let customer_id: i32 = 19;
-    //let account_name: String = "bar".to_string();
+async fn query_db_latest_blocknum(
+    customer_id: i32,
+    amount: i32,
+    account_name: String,
+) -> std::result::Result<i32, Box<dyn std::error::Error>> {
     let query_seq = format!(
-        "SELECT customer_id, amount, account_name from payment where customer_id={} and account_name='{}'",
-        customer_id,
+        "SELECT customer_id, amount, account_name from payment where account_name='{}' order by customer_id desc limit 1",
         account_name
     );
+
+    match get_db_conn().await {
+        Ok(mut conn) => {
+            let val: Vec<Payment> =
+                conn.query_map(query_seq, |(customer_id, amount, account_name)| Payment {
+                    customer_id,
+                    amount,
+                    account_name,
+                })?;
+
+            if !val.is_empty() {
+                for log in val.iter() {
+                    let customer_id = log.customer_id;
+                   // let amount = log.amount;
+                  //  let account_name: String = log.account_name.clone().unwrap_or_default(); // 可以有空数据
+                    // println!(
+                    //     "customer_id={}, amount={}, account_name={}",
+                    //     customer_id, amount, account_name
+                    // );
+                    return Ok(customer_id);
+                }  
+            } else {
+                conn.exec_drop(
+                    r"INSERT INTO payment (customer_id, amount, account_name)
+                      VALUES (:customer_id, :amount, :account_name)",
+                    params! {
+                        "customer_id" => customer_id,
+                        "amount" => 100,
+                        "account_name" => account_name,
+                    },
+                )?;
+                return Ok(0);
+            }
+        }
+        Err(err) => {
+            eprintln!("Error: {:?}", err);
+        }
+    }
+
+    Ok(0)
+}
+
+async fn query_try_insert_db(
+    customer_id: i32,
+    amount: i32,
+    account_name: String,
+) -> std::result::Result<(), Box<dyn std::error::Error>> {
     // let query_seq = format!(
-    //     "SELECT customer_id, amount, account_name from payment where account_name='{}' order by customer_id desc limit 1",
+    //     "SELECT customer_id, amount, account_name from payment where customer_id={} and account_name='{}'",
+    //     customer_id,
     //     account_name
     // );
+    let query_seq = format!(
+        "SELECT customer_id, amount, account_name from payment where account_name='{}' order by customer_id desc limit 1",
+        account_name
+    );
     // println!("{query_seq}");
     match get_db_conn().await {
         Ok(mut conn) => {
@@ -169,7 +234,7 @@ async fn query_try_insert_db(customer_id: i32, amount:i32,account_name: String) 
                     amount,
                     account_name,
                 })?;
-                
+
             if val.iter().len() > 0 {
                 for log in val.iter() {
                     let customer_id = log.customer_id;
