@@ -50,9 +50,9 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     //     println!("{}", r);
     // });
 
-    let results = conn.query_iter(query_state);
+    let mut results = conn.query_iter(query_state)?;
 
-    if let Some(row) = results?.next() {
+    if let Some(row) = results.next() {
         let count: u64 = row?.get(0).unwrap_or(0);
         println!("Count: {}", count);
     } else {

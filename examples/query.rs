@@ -33,8 +33,8 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
        let mut query_state: &str = "SELECT count(*) from payment where customer_id={customer_id} and account_name='{account_name}'";
        let binding = query_state.replace("{customer_id}", nu.to_string().as_str()).replace("{account_name}", teststr.as_str());
        query_state = binding.as_str();
-        let results = conn.query_iter(query_state);
-        if let Some(row) = results?.next() {
+        let mut results = conn.query_iter(query_state)?;
+        if let Some(row) = results.next() {
             let count: i64 = row?.get(0).unwrap_or(0);
             println!("Count: {}", count);
         } else {
