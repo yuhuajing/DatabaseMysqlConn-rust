@@ -28,6 +28,20 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
             println!("{}, {},{}", r.0, r.1, r.2);
         });
 
+        let teststr:String = String::from("bar");
+        let nu:u64=9;
+       let mut query_state: &str = "SELECT count(*) from payment where customer_id={customer_id} and account_name='{account_name}'";
+       let binding = query_state.replace("{customer_id}", nu.to_string().as_str()).replace("{account_name}", teststr.as_str());
+       query_state = binding.as_str();
+        let results = conn.query_iter(query_state);
+        if let Some(row) = results?.next() {
+            let count: i64 = row?.get(0).unwrap_or(0);
+            println!("Count: {}", count);
+        } else {
+            println!("No results found.");
+        }
+
+
     //查询整行数据，返回的数据和表结构一致
     let val: Vec<Payment> = conn.query_map(
         //"SELECT customer_id, amount, account_name from payment where account_name='clay'",
